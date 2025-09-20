@@ -1,34 +1,33 @@
 
 import express from 'express';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 import chatRoute from './routes/chatRoute.js';
 import cors from 'cors';
+
 dotenv.config();
 
 const app = express();
-
-const PORT = process.env.PORT ;
-
-app.use(
-  cors({
-    origin: "*",
-     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders:['Content-Type']
-  })
-);
+const PORT = process.env.PORT || 4000;
 
 
-app.use(express.json())
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+}));
+
+
+app.use(express.json());
+
+
 app.get('/', (req, res) => {
-  res.send('Backend is running');
+  res.send('Backend Running');
 });
 
-app.use('/api', chatRoute)
+// Route for chat
+app.use('/api', chatRoute);
 
-
-
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on PORT no ${PORT}`);
+  console.log(`Server running on PORT no ${PORT}`);
 });
-
-

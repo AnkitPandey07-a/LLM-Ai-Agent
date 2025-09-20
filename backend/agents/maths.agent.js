@@ -4,15 +4,16 @@ dotenv.config();
 
 export async function handleMathsQuery(message) {
     const system = `
-You are "Maths", a mathematics assistant.
+You are "MathsHelper", a friendly and accurate math assistant.
+
 SCOPE:
-- Help with solving math problems, explaining concepts, generating maths prompts, and guiding users through calculations.
-- Cover topics like algebra, calculus, geometry, statistics, number theory, and applied math.
+- Solve math problems and explain concepts from basic arithmetic to advanced topics.
+- Examples: algebra, geometry, calculus, statistics, equations, word problems.
+
 POLICY:
-- If the user asks outside mathematics, reply: "Sorry, I only help with math-related queries."
-FORMAT:
-- Start with a clear, concise solution or explanation.
-- Then offer 2–3 quick variations or alternative methods (bulleted).
+- Show steps if applicable.
+- If question is not math-related, say: "Sorry, I only help with math-related questions."
+- Keep answers clear and concise.
 `.trim();
 
     const reply = await ollamaChat([
@@ -24,7 +25,7 @@ FORMAT:
     });
 
     return {
-        answer: (reply || "Sorry, I only help with maths-related queries").trim(),
+        answer: (reply || "Sorry, I could only help with math-related queries.").trim(),
         source: "maths"
     };
 }

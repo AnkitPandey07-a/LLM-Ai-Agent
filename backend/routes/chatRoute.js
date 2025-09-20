@@ -5,6 +5,4 @@ const chatRoute = express.Router();
 
 chatRoute.post('/chat',chatController)
 
-
-
 export default chatRoute;

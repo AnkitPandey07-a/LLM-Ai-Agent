@@ -1,61 +1,62 @@
-
-
 import { ollamaGenerate } from "../services/ollama.js";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
+
 import { handleHealthQuery } from "./health.agent.js";
 import { handleGraphicQuery } from "./graphic.agent.js";
+import { handleHistoryQuery } from "./history.agent.js";
 import { handleMathsQuery } from "./maths.agent.js";
 import { handleScienceQuery } from "./science.agent.js";
-import { handleCodeQuery } from "./code.agent.js";
+
 dotenv.config();
 
+const VALID_DOMAINS = ["health", "graphic", "history", "maths", "science", "unknown"];
+
 async function classifyQueryWithLLM(message) {
-       const system = `
+    const system = `
 You are a strict router that decides which agent handles the user's message.
 
 OPTIONS:
-- "maths"   -> maths calculations, algebra, geometry, calculus, statistics
-- "code"   -> programming, coding, debugging, algorithms, data structures
-- "science"-> physics, chemistry, biology, astronomy, earth science
-- "health"  -> health information, symptoms, prevention, lifestyle, treatment overviews
-- "graphic" -> graphic/design help: prompts, layout, color palettes, composition, visual styles
-- "unknown" -> anything else, not related to health or graphics or code or maths or science
+- "health"  -> health info: symptoms, lifestyle, prevention, treatment overviews
+- "graphic" -> graphic/design: prompts, layout, color, composition, visual style
+- "history" -> history: events, people, timelines, ancient to modern
+- "maths"   -> math problems: algebra, calculus, equations, statistics
+- "science" -> science topics: biology, chemistry, physics, experiments
+- "unknown" -> anything else not in these categories
 
 RULES:
-- Respond with EXACTLY one word: code, graphic, health, maths, science, or unknown.
+- Respond with EXACTLY one word: health, graphic, history, maths, science, or unknown
 - No punctuation. No explanation.
 `.trim();
 
-const prompt =`${system}
-User:${message}
+    const prompt = `${system}
+User: ${message}
 Answer (one word)`;
 
-const raw = await ollamaGenerate(prompt,{model:process.env.GEN_MODEL});
-console.log("Classifier result:", raw);
+    const raw = await ollamaGenerate(prompt, { model: process.env.GEN_MODEL });
+    const token = raw?.trim().toLowerCase();
 
-
-const token = raw?.trim().toLowerCase() || "unknown";
-
-if(token === "maths" || token === "science" || token === "code" || token === "health" || token ==="graphic"|| token ==="unknown"){
-    return token;
+    return VALID_DOMAINS.includes(token) ? token : "unknown";
 }
-return "unknown";
-    
-}
-export async function handleQuery(message){
+
+export async function handleQuery(message) {
     const domain = await classifyQueryWithLLM(message);
 
-    if(domain ==="maths") return handleMathsQuery(message);
-    if(domain ==="science") return handleScienceQuery(message);
-    if(domain ==="code") return handleCodeQuery(message);
-    if(domain === "health") return handleHealthQuery(message);
-    if(domain ==="graphic") return handleGraphicQuery(message);
-    
-    if(domain ==="unknown"){
-
-        return{
-            answer:"OOps So sorry i am only develope for general health information or graphics/design/maths/science/code Prompts So you can ask me related to this 😊 .",
-            source:"unknown"
-        }
+    switch (domain) {
+        case "health":
+            return handleHealthQuery(message);
+        case "graphic":
+            return handleGraphicQuery(message);
+        case "history":
+            return handleHistoryQuery(message);
+        case "maths":
+            return handleMathsQuery(message);
+        case "science":
+            return handleScienceQuery(message);
+        case "unknown":
+        default:
+            return {
+                answer: "I can help only with health, graphics/design, history, maths, or science-related queries.",
+                source: "unknown"
+            };
     }
 }

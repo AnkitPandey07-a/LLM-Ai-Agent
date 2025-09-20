@@ -27,4 +27,3 @@ const reply = await ollamaChat([
     source: "health"
  }
 }
-
