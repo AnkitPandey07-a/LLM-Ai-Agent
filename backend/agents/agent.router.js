@@ -9,7 +9,6 @@ import { handleScienceQuery } from "./science.agent.js";
 import { handleCodeQuery } from "./code.agent.js";
 dotenv.config();
 
-
 async function classifyQueryWithLLM(message) {
        const system = `
 You are a strict router that decides which agent handles the user's message.
@@ -32,6 +31,7 @@ User:${message}
 Answer (one word)`;
 
 const raw = await ollamaGenerate(prompt,{model:process.env.GEN_MODEL});
+console.log("Classifier result:", raw);
 
 
 const token = raw?.trim().toLowerCase() || "unknown";
@@ -54,7 +54,7 @@ export async function handleQuery(message){
     if(domain ==="unknown"){
 
         return{
-            answer:"I can help only with general health information or graphics/design prompts.",
+            answer:"OOps So sorry i am only develope for general health information or graphics/design/maths/science/code Prompts So you can ask me related to this 😊 .",
             source:"unknown"
         }
     }
